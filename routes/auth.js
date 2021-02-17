@@ -1,12 +1,12 @@
 const express = require("express");
 const router = new express.Router();
-const ExpressError = require("..//expressError");
-const db = require("../db")
-const bcrypt = require("bcrypt")
+const ExpressError = require("../expressError");
+const db = require("../db");
+const bcrypt = require("bcrypt");
 const {BCRYPT_WORK_FACTOR, SECRET_KEY} = require("../config");
 const jwt = require("jsonwebtoken");
 const { user } = require("../db");
-const { ensureLoggedIn } = require("../middleware/auth");
+// const { ensureLoggedIn } = require("../middleware/auth");
 
 router.get('/', (req, res, next) => {
     res.send("APP IS WORKING")
@@ -54,15 +54,15 @@ router.post('/login', async (req, res, next) => {
     }
 })
 
-router.get('/secret', ensureLoggedIn, async (req, res, next) => {
-    try {
-        const token = req.body._token;
+// router.get('/secret', ensureLoggedIn, async (req, res, next) => {
+//     try {
+//         const token = req.body._token;
 
-        const payload = jwt.verify(token, SECRET_KEY);
-        return res.json({msg: "SIGNED IN"})
-    } catch(e) {
-        return next(e);
-    }
-}) 
+//         const payload = jwt.verify(token, SECRET_KEY);
+//         return res.json({msg: "SIGNED IN"})
+//     } catch(e) {
+//         return next(e);
+//     }
+// }) 
 
 module.exports = router;

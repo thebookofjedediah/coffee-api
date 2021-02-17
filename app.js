@@ -1,12 +1,15 @@
 const express = require("express");
 const app = express();
-const routes = require("./routes/auth");
+const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/users");
 const ExpressError = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 
 app.use(express.json());
+
 app.use(authenticateJWT);
-app.use("/", routes);
+app.use("/users", userRoutes);
+app.use("/", authRoutes);
 
 /** 404 catch --- passes to next handler. */
 
