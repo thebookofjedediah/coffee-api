@@ -1,68 +1,63 @@
+"use strict";
+
+const jsonschema = require("jsonschema");
+const User = require("../models/user");
 const express = require("express");
 const router = new express.Router();
-const ExpressError = require("../expressError");
-const db = require("../db");
-const bcrypt = require("bcrypt");
-const {BCRYPT_WORK_FACTOR, SECRET_KEY} = require("../config");
-const jwt = require("jsonwebtoken");
-const { user } = require("../db");
-// const { ensureLoggedIn } = require("../middleware/auth");
+const { createToken } = require("../helpers/tokens");
+const userAuthSchema = require("../schemas/userAuth.json");
+const userRegisterSchema = require("../schemas/userRegister.json");
+const { BadRequestError } = require("../expressError");
 
-router.get('/', (req, res, next) => {
-    res.send("APP IS WORKING")
-})
+/** POST /auth/token:  { username, password } => { token }
+ *
+ * Returns JWT token which can be used to authenticate further requests.
+ *
+ * Authorization required: none
+ */
 
-router.post('/register', async (req, res, next) => {
-    try {
-        const { username, password } = req.body;
-        if(!username || !password){
-            throw new ExpressError("Username and Password Required", 400)
-        }
-        const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
-        const results = await db.query(`
-            INSERT INTO users (username, password)
-            VALUES ($1, $2)
-            RETURNING username`,
-            [username, hashedPassword]);
-        return res.json(results.rows[0]);
-    } catch(e) {
-        return next(e);
+router.post("/token", async function (req, res, next) {
+  try {
+    const validator = jsonschema.validate(req.body, userAuthSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
     }
-})
 
-router.post('/login', async (req, res, next) => {
-    try {
-        const { username, password } = req.body;
-        if(!username || !password){
-            throw new ExpressError("Username and Password Required", 400)
-        }
-        const results = await db.query(`
-            SELECT username, password
-            FROM users
-            WHERE username = $1`,
-            [username]);
-        const user = results.rows[0];
-        if(user){
-            if (await bcrypt.compare(password, user.password)) {
-                const token = jwt.sign({ username: username }, SECRET_KEY)
-                return res.json({message: `logged in`, token})
-            }
-        }
-        throw new ExpressError("Username not found", 400)
-    } catch(e) {
-        return next(e);
+    const { username, password } = req.body;
+    const user = await User.authenticate(username, password);
+    const token = createToken(user);
+    return res.json({ token });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+
+/** POST /auth/register:   { user } => { token }
+ *
+ * user must include { username, password, firstName, lastName, email }
+ *
+ * Returns JWT token which can be used to authenticate further requests.
+ *
+ * Authorization required: none
+ */
+
+router.post("/register", async function (req, res, next) {
+  try {
+    const validator = jsonschema.validate(req.body, userRegisterSchema);
+    if (!validator.valid) {
+      const errs = validator.errors.map(e => e.stack);
+      throw new BadRequestError(errs);
     }
-})
 
-// router.get('/secret', ensureLoggedIn, async (req, res, next) => {
-//     try {
-//         const token = req.body._token;
+    const newUser = await User.register({ ...req.body, isAdmin: false });
+    const token = createToken(newUser);
+    return res.status(201).json({ token });
+  } catch (err) {
+    return next(err);
+  }
+});
 
-//         const payload = jwt.verify(token, SECRET_KEY);
-//         return res.json({msg: "SIGNED IN"})
-//     } catch(e) {
-//         return next(e);
-//     }
-// }) 
 
 module.exports = router;

@@ -6,9 +6,13 @@ CREATE DATABASE coffee_app;
 
 DROP TABLE IF EXISTS users;
 
-CREATE TABLE users
-(
-  username TEXT NOT NULL PRIMARY KEY,
-  password TEXT NOT NULL
+CREATE TABLE users (
+  username VARCHAR(25) PRIMARY KEY,
+  password TEXT NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT NOT NULL
+    CHECK (position('@' IN email) > 1),
+  is_admin BOOLEAN NULL DEFAULT FALSE
 );
 
