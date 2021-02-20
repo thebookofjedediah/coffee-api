@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
+const coffeeRoutes = require("./routes/coffees");
 const ExpressError = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
 
@@ -9,6 +10,7 @@ app.use(express.json());
 
 app.use(authenticateJWT);
 app.use("/users", userRoutes);
+app.use("/coffees", coffeeRoutes);
 app.use("/", authRoutes);
 
 /** 404 catch --- passes to next handler. */

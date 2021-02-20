@@ -4,8 +4,6 @@ CREATE DATABASE coffee_app;
 
 \c coffee_app;
 
-DROP TABLE IF EXISTS users;
-
 CREATE TABLE users (
   username VARCHAR(25) PRIMARY KEY,
   password TEXT NOT NULL,
@@ -14,5 +12,12 @@ CREATE TABLE users (
   email TEXT NOT NULL
     CHECK (position('@' IN email) > 1),
   is_admin BOOLEAN NULL DEFAULT FALSE
+);
+
+CREATE TABLE coffees (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  brand TEXT NOT NULL,
+  roast_level TEXT
 );
 
