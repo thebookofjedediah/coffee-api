@@ -57,7 +57,7 @@ class User {
    **/
 
   static async register(
-      { username, password, firstName, lastName, email, isAdmin }) {
+      { username, password, firstName, lastName, email, profilePicture, isAdmin }) {
     const duplicateCheck = await db.query(
           `SELECT username
            FROM users
@@ -78,15 +78,17 @@ class User {
             first_name,
             last_name,
             email,
+            profile_picture,
             is_admin)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           RETURNING username, first_name AS "firstName", last_name AS "lastName", email, is_admin AS "isAdmin"`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           RETURNING username, first_name AS "firstName", last_name AS "lastName", email, profile_picture AS profilePicture, is_admin AS "isAdmin"`,
         [
           username,
           hashedPassword,
           firstName,
           lastName,
           email,
+          profilePicture,
           isAdmin,
         ],
     );
@@ -107,6 +109,7 @@ class User {
                   first_name AS "firstName",
                   last_name AS "lastName",
                   email,
+                  profile_picture AS "profilePicture",
                   is_admin AS "isAdmin"
            FROM users
            ORDER BY username`,
@@ -128,6 +131,7 @@ class User {
                   first_name AS "firstName",
                   last_name AS "lastName",
                   email,
+                  profile_picture AS "profilePicture",
                   is_admin AS "isAdmin"
            FROM users
            WHERE username = $1`,
@@ -168,6 +172,7 @@ class User {
         {
           firstName: "first_name",
           lastName: "last_name",
+          profilePicture: "profile_picture",
           isAdmin: "is_admin",
         });
     const usernameVarIdx = "$" + (values.length + 1);
@@ -179,6 +184,7 @@ class User {
                                 first_name AS "firstName",
                                 last_name AS "lastName",
                                 email,
+                                profile_picture AS "profilePicture",
                                 is_admin AS "isAdmin"`;
     const result = await db.query(querySql, [...values, username]);
     const user = result.rows[0];
@@ -202,6 +208,35 @@ class User {
     const user = result.rows[0];
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
+  }
+
+    /** Create a review of a coffee
+   *
+   * - username: username creating the review
+   * - coffeeId: coffee id
+   **/
+
+  static async createReview(username, coffeeId, rating, message) {
+    const preCheck = await db.query(
+          `SELECT id
+           FROM coffees
+           WHERE id = $1`, [coffeeId]);
+    const coffee = preCheck.rows[0];
+
+    if (!coffee) throw new NotFoundError(`No coffee: ${coffeeId}`);
+
+    const preCheck2 = await db.query(
+          `SELECT username
+           FROM users
+           WHERE username = $1`, [username]);
+    const user = preCheck2.rows[0];
+
+    if (!user) throw new NotFoundError(`No username: ${username}`);
+
+    await db.query(
+          `INSERT INTO reviews (rating, message, username, coffee_id)
+           VALUES ($1, $2, $3, $4)`,
+        [rating, message, username, coffeeId]);
   }
 
 }

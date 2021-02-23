@@ -28,9 +28,14 @@
         "minLength": 6,
         "maxLength": 60,
         "format": "email"
+      },
+      "profile_picture": {
+        "type": "string",
+        "minLength": 6,
+        "maxLength": 300
       }
     },
-    "additionalProperties": false,
+    "additionalProperties": true,
     "required": [
       "username",
       "firstName",
