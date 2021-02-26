@@ -3,14 +3,18 @@ const app = express();
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const coffeeRoutes = require("./routes/coffees");
+const brandRoutes = require("./routes/brands");
 const ExpressError = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
+const cors = require('cors')
 
 app.use(express.json());
+app.use(cors())
 
 app.use(authenticateJWT);
 app.use("/users", userRoutes);
 app.use("/coffees", coffeeRoutes);
+app.use("/brands", brandRoutes);
 app.use("/", authRoutes);
 
 /** 404 catch --- passes to next handler. */

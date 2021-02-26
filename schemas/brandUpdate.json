@@ -1,17 +1,21 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://our.company.com/coffeeUpdate.schema.json",
+  "$id": "http://our.company.com/brandUpdate.schema.json",
   "type": "object",
   "properties": {
+    "handle": {
+      "type": "string",
+      "minLength": 1
+    },
     "name": {
       "type": "string",
       "minLength": 1
     },
-    "brandHandle": {
+    "location": {
       "type": "string",
       "minLength": 1
     },
-    "roastLevel": {
+    "logo_url": {
       "type": "string",
       "minLength": 1
     }

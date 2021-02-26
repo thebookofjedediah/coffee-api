@@ -15,12 +15,23 @@ CREATE TABLE users (
   is_admin BOOLEAN NULL DEFAULT FALSE
 );
 
+CREATE TABLE brands (
+  handle VARCHAR(25) PRIMARY KEY CHECK (handle = lower(handle)),
+  name TEXT UNIQUE NOT NULL,
+  location TEXT,
+  logo_url TEXT
+);
+
+-- photo(s) for coffees
 CREATE TABLE coffees (
   id SERIAL PRIMARY KEY,
   name TEXT NOT NULL,
-  brand TEXT NOT NULL,
-  roast_level TEXT
+  brand_handle TEXT
+    REFERENCES brands ON DELETE CASCADE,
+  roast_level TEXT 
+    CHECK (roast_level IN ('City', 'City +', 'Full City', 'Full City +', 'Vienna', 'French', 'Italian/Spanish', 'Espresso', 'Light', 'Medium', 'Dark'))
 );
+
 
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,

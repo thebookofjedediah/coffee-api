@@ -10,21 +10,21 @@ const { sqlForPartialUpdate } = require("../helpers/sql");
 class Coffee {
   /** Create a coffee (from data), update db, return new coffee data.
    *
-   * data should be { name, brand, roast_level }
+   * data should be { name, brandHandle, roast_level }
    *
-   * Returns { id, name, brand, roast_level }
+   * Returns { id, name, brandHandle, roast_level }
    **/
 
-  static async create({ name, brand, roastLevel}) {
+  static async create({ name, brandHandle, roastLevel}) {
     const result = await db.query(
           `INSERT INTO coffees (name,
-                                brand,
+                                brand_handle,
                                 roast_level)
            VALUES ($1, $2, $3)
-           RETURNING id, name, brand, roast_level AS "roastLevel"`,
+           RETURNING id, name, brand_handle AS "brandHandle", roast_level AS "roastLevel"`,
         [
           name,
-          brand,
+          brandHandle,
           roastLevel
         ]);
     
@@ -40,7 +40,7 @@ class Coffee {
     const results = await db.query(
         `SELECT id,
                 name,
-                brand,
+                brand_handle,
                 roast_level AS "roastLevel"
         FROM coffees
         ORDER BY name`);
@@ -59,7 +59,7 @@ class Coffee {
     const coffeeRes = await db.query(
           `SELECT id,
                   name,
-                  brand,
+                  brand_handle,
                   roast_level
            FROM coffees
            WHERE id = $1`, [id]);
@@ -94,12 +94,12 @@ class Coffee {
                       WHERE id = ${idVarIdx} 
                       RETURNING id, 
                                 name, 
-                                brand, 
+                                brand_handle, 
                                 roast_level`;
     const result = await db.query(querySql, [...values, id]);
     const coffee = result.rows[0];
 
-    if (!coffee) throw new NotFoundError(`No job: ${id}`);
+    if (!coffee) throw new NotFoundError(`No coffee: ${id}`);
 
     return coffee;
   }
