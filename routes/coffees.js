@@ -16,7 +16,7 @@ const router = express.Router({ mergeParams: true });
 
 /** POST / { coffee } => { coffee }
  *
- * coffee should be { name, brand, roast_level }
+ * coffee should be { name, brand, roast_level, photo_url }
  *
  * Returns { id, name, brand, roast_level  }
  *
@@ -55,14 +55,14 @@ router.get("/", async function (req, res, next) {
 
 /** GET /[coffeeId] => { coffee }
  *
- * Returns { id, name, brand, roast_level }
+ * Returns { id, name, brand, roast_level, photo_url }
  *
  * Authorization required: none
  */
 
-router.get("/:id", async function (req, res, next) {
+router.get("/:handle", async function (req, res, next) {
   try {
-    const coffee = await Coffee.get(req.params.id);
+    const coffee = await Coffee.get(req.params.handle);
     return res.json({ coffee });
   } catch (err) {
     return next(err);
@@ -72,14 +72,14 @@ router.get("/:id", async function (req, res, next) {
 
 /** PATCH /[id]  { fld1, fld2, ... } => { coffee }
  *
- * Data can include: { name, brand, roast_level }
+ * Data can include: { name, brand, roast_level, photo_url }
  *
  * Returns { id, name, brand, roast_level }
  *
  * Authorization required: admin
  */
 
-router.patch("/:id", ensureAdmin, async function (req, res, next) {
+router.patch("/:handle", ensureAdmin, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, coffeeUpdateSchema);
     if (!validator.valid) {
@@ -87,7 +87,7 @@ router.patch("/:id", ensureAdmin, async function (req, res, next) {
       throw new BadRequestError(errs);
     }
 
-    const coffee = await Coffee.update(req.params.id, req.body);
+    const coffee = await Coffee.update(req.params.handle, req.body);
     return res.json({ coffee });
   } catch (err) {
     return next(err);
@@ -99,10 +99,10 @@ router.patch("/:id", ensureAdmin, async function (req, res, next) {
  * Authorization required: admin
  */
 
-router.delete("/:id", ensureAdmin, async function (req, res, next) {
+router.delete("/:handle", ensureAdmin, async function (req, res, next) {
   try {
-    await Coffee.remove(req.params.id);
-    return res.json({ deleted: +req.params.id });
+    await Coffee.remove(req.params.handle);
+    return res.json({ deleted: req.params.handle });
   } catch (err) {
     return next(err);
   }

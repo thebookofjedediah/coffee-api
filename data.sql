@@ -16,22 +16,21 @@ CREATE TABLE users (
 );
 
 CREATE TABLE brands (
-  handle VARCHAR(25) PRIMARY KEY CHECK (handle = lower(handle)),
+  handle VARCHAR(50) PRIMARY KEY CHECK (handle = lower(handle)),
   name TEXT UNIQUE NOT NULL,
   location TEXT,
   logo_url TEXT
 );
 
--- photo(s) for coffees
 CREATE TABLE coffees (
-  id SERIAL PRIMARY KEY,
+  handle VARCHAR(50) PRIMARY KEY CHECK (handle = lower(handle)),
   name TEXT NOT NULL,
   brand_handle TEXT
     REFERENCES brands ON DELETE CASCADE,
   roast_level TEXT 
-    CHECK (roast_level IN ('City', 'City +', 'Full City', 'Full City +', 'Vienna', 'French', 'Italian/Spanish', 'Espresso', 'Light', 'Medium', 'Dark'))
+    CHECK (roast_level IN ('City', 'City +', 'Full City', 'Full City +', 'Vienna', 'French', 'Italian/Spanish', 'Espresso', 'Light', 'Medium', 'Dark')),
+  photo_url TEXT
 );
-
 
 CREATE TABLE reviews (
   id SERIAL PRIMARY KEY,
@@ -39,6 +38,6 @@ CREATE TABLE reviews (
   message TEXT,
   username VARCHAR(25)
     REFERENCES users ON DELETE CASCADE,
-  coffee_id INTEGER
+  coffee_handle VARCHAR(50)
     REFERENCES coffees ON DELETE CASCADE
 );

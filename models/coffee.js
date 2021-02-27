@@ -15,17 +15,21 @@ class Coffee {
    * Returns { id, name, brandHandle, roast_level }
    **/
 
-  static async create({ name, brandHandle, roastLevel}) {
+  static async create({ handle, name, brandHandle, roastLevel, photoUrl}) {
     const result = await db.query(
-          `INSERT INTO coffees (name,
+          `INSERT INTO coffees (handle,
+                                name,
                                 brand_handle,
-                                roast_level)
-           VALUES ($1, $2, $3)
-           RETURNING id, name, brand_handle AS "brandHandle", roast_level AS "roastLevel"`,
+                                roast_level,
+                                photo_url)
+           VALUES ($1, $2, $3, $4, $5)
+           RETURNING handle, name, brand_handle AS "brandHandle", roast_level AS "roastLevel", photo_url AS "photoUrl"`,
         [
+          handle,
           name,
           brandHandle,
-          roastLevel
+          roastLevel,
+          photoUrl
         ]);
     
     let coffee = result.rows[0];
@@ -38,35 +42,37 @@ class Coffee {
   static async findAll() {
 
     const results = await db.query(
-        `SELECT id,
+        `SELECT handle,
                 name,
-                brand_handle,
-                roast_level AS "roastLevel"
+                brand_handle AS "brandHandle",
+                roast_level AS "roastLevel",
+                photo_url AS "photoUrl"
         FROM coffees
         ORDER BY name`);
 
     return results.rows;
   }
 
-  /** Given a coffee id, return data about coffee.
+  /** Given a coffee handle, return data about coffee.
    *
-   * Returns { id, name, brand, roast_level }
+   * Returns { handle, name, brand, roast_level }
    *
    * Throws NotFoundError if not found.
    **/
 
-  static async get(id) {
+  static async get(handle) {
     const coffeeRes = await db.query(
-          `SELECT id,
+          `SELECT handle,
                   name,
-                  brand_handle,
-                  roast_level
+                  brand_handle AS "brandHandle",
+                  roast_level AS "roastLevel",
+                  photo_url AS "photoUrl"
            FROM coffees
-           WHERE id = $1`, [id]);
+           WHERE handle = $1`, [handle]);
 
     const coffee = coffeeRes.rows[0];
 
-    if (!coffee) throw new NotFoundError(`No coffee: ${id}`);
+    if (!coffee) throw new NotFoundError(`No coffee: ${handle}`);
 
     return coffee;
   }
@@ -76,14 +82,14 @@ class Coffee {
    * This is a "partial update" --- it's fine if data doesn't contain
    * all the fields; this only changes provided ones.
    *
-   * Data can include: { name, brand, roast_level }
+   * Data can include: { name, brand, roast_level, photo_url }
    *
-   * Returns { id, name, brand, roast_level  }
+   * Returns { handle, name, brand, roast_level, photo_url  }
    *
    * Throws NotFoundError if not found.
    */
 
-  static async update(id, data) {
+  static async update(handle, data) {
     const { setCols, values } = sqlForPartialUpdate(
         data,
         {});
@@ -91,15 +97,16 @@ class Coffee {
 
     const querySql = `UPDATE coffees 
                       SET ${setCols} 
-                      WHERE id = ${idVarIdx} 
-                      RETURNING id, 
+                      WHERE handle = ${idVarIdx} 
+                      RETURNING handle, 
                                 name, 
-                                brand_handle, 
-                                roast_level`;
-    const result = await db.query(querySql, [...values, id]);
+                                brand_handle AS "brandHandle",
+                                roast_level AS "roastLevel",
+                                photo_url AS "photoUrl"`;
+    const result = await db.query(querySql, [...values, handle]);
     const coffee = result.rows[0];
 
-    if (!coffee) throw new NotFoundError(`No coffee: ${id}`);
+    if (!coffee) throw new NotFoundError(`No coffee: ${handle}`);
 
     return coffee;
   }
@@ -109,15 +116,15 @@ class Coffee {
    * Throws NotFoundError if company not found.
    **/
 
-  static async remove(id) {
+  static async remove(handle) {
     const result = await db.query(
           `DELETE
            FROM coffees
-           WHERE id = $1
-           RETURNING id`, [id]);
+           WHERE handle = $1
+           RETURNING handle`, [handle]);
     const coffee = result.rows[0];
 
-    if (!coffee) throw new NotFoundError(`No coffee: ${id}`);
+    if (!coffee) throw new NotFoundError(`No coffee: ${handle}`);
   }
 }
 

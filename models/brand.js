@@ -82,12 +82,13 @@ class Brand {
     if (!brand) throw new NotFoundError(`No brand: ${handle}`);
 
     const coffeesRes = await db.query(
-          `SELECT name, 
+          `SELECT handle,
+                  name, 
                   brand_handle AS "brandHandle", 
                   roast_level AS "roastLevel"
            FROM coffees
            WHERE brand_handle = $1
-           ORDER BY id`,
+           ORDER BY name`,
         [handle],
     );
 
