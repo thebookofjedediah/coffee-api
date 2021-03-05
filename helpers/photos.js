@@ -1,4 +1,3 @@
-let multer = require('multer')
 let axios = require('axios')
 let cloudinary = require('cloudinary').v2;
 const FormData = require('form-data');
@@ -16,9 +15,6 @@ cloudinary.config({
   api_key: CLOUDINARY_API_KEY,
   api_secret: CLOUDINARY_API_SECRET
 });
-
-// Set up multer to write incoming files to the tmp directory
-var upload = multer({ dest: 'tmp/' })
 
 // url to validate pic
 var picpurifyUrl = PICPURIFY_URL;

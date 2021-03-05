@@ -11,8 +11,12 @@ const Brand = require("../models/brand");
 const brandNewSchema = require("../schemas/brandNew.json");
 const brandUpdateSchema = require("../schemas/brandUpdate.json");
 const { checkPhoto, uploadPhoto} = require("../helpers/photos")
+let multer = require('multer')
 
 const router = express.Router({ mergeParams: true });
+
+// Set up multer to write incoming files to the tmp directory
+var upload = multer({ dest: 'tmp/' })
 
 
 /** POST / { brand } => { brand }
@@ -24,15 +28,17 @@ const router = express.Router({ mergeParams: true });
  * Authorization required: user
  */
 
-router.post("/", async function (req, res, next) {
+router.post("/", upload.single('logoUrl'), async function (req, res, next) {
   console.log(req.body)
   try {
     let content_check_passed = await checkPhoto(req.file.path);
     console.log("content is clean")
     if (content_check_passed){
       let photoUrl = await uploadPhoto(req.file.path)
+      req.body['photoUrl'] = photoUrl;
+      console.log(req.body)
     }
-    req.body.logoUrl = photoUrl;
+    console.log(req.body)
     const validator = jsonschema.validate(req.body, brandNewSchema);
     if (!validator.valid) {
       const errs = validator.errors.map(e => e.stack);
