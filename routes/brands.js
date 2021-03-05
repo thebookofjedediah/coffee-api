@@ -10,6 +10,7 @@ const { ensureLoggedIn, ensureAdmin } = require("../middleware/auth");
 const Brand = require("../models/brand");
 const brandNewSchema = require("../schemas/brandNew.json");
 const brandUpdateSchema = require("../schemas/brandUpdate.json");
+const { checkPhoto, uploadPhoto} = require("../helpers/photos")
 
 const router = express.Router({ mergeParams: true });
 
@@ -23,8 +24,15 @@ const router = express.Router({ mergeParams: true });
  * Authorization required: user
  */
 
-router.post("/", ensureLoggedIn, async function (req, res, next) {
+router.post("/", async function (req, res, next) {
+  console.log(req.body)
   try {
+    let content_check_passed = await checkPhoto(req.file.path);
+    console.log("content is clean")
+    if (content_check_passed){
+      let photoUrl = await uploadPhoto(req.file.path)
+    }
+    req.body.logoUrl = photoUrl;
     const validator = jsonschema.validate(req.body, brandNewSchema);
     if (!validator.valid) {
       const errs = validator.errors.map(e => e.stack);
@@ -78,6 +86,7 @@ router.get("/:handle", async function (req, res, next) {
  *
  * Authorization required: admin
  */
+
 
 router.patch("/:handle", ensureAdmin, async function (req, res, next) {
   try {

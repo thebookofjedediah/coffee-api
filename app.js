@@ -6,9 +6,10 @@ const coffeeRoutes = require("./routes/coffees");
 const brandRoutes = require("./routes/brands");
 const ExpressError = require("./expressError");
 const { authenticateJWT } = require("./middleware/auth");
-const cors = require('cors')
+const cors = require('cors');
 
 app.use(express.json());
+app.use(express.urlencoded({extended: true}))
 app.use(cors())
 
 app.use(authenticateJWT);
@@ -38,8 +39,6 @@ app.use(function (err, req, res, next) {
     }
   });
 });
-
-
 
 
 module.exports = app;

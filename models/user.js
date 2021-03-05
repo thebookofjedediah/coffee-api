@@ -213,17 +213,17 @@ class User {
     /** Create a review of a coffee
    *
    * - username: username creating the review
-   * - coffeeId: coffee id
+   * - coffeeHandle: coffee id
    **/
 
-  static async createReview(username, coffeeId, rating, message) {
+  static async createReview(username, coffeeHandle, rating, message) {
     const preCheck = await db.query(
-          `SELECT id
+          `SELECT handle
            FROM coffees
-           WHERE id = $1`, [coffeeId]);
+           WHERE handle = $1`, [coffeeHandle]);
     const coffee = preCheck.rows[0];
 
-    if (!coffee) throw new NotFoundError(`No coffee: ${coffeeId}`);
+    if (!coffee) throw new NotFoundError(`No coffee: ${coffeeHandle}`);
 
     const preCheck2 = await db.query(
           `SELECT username
@@ -234,9 +234,9 @@ class User {
     if (!user) throw new NotFoundError(`No username: ${username}`);
 
     await db.query(
-          `INSERT INTO reviews (rating, message, username, coffee_id)
+          `INSERT INTO reviews (rating, message, username, coffee_handle)
            VALUES ($1, $2, $3, $4)`,
-        [rating, message, username, coffeeId]);
+        [rating, message, username, coffeeHandle]);
   }
 
 }

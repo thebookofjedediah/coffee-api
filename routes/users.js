@@ -126,11 +126,11 @@ router.delete("/:username", ensureCorrectUserOrAdmin, async function (req, res, 
  * Authorization required: admin or same-user-as-:username
  * */
 
-router.post("/:username/coffees/:id", ensureCorrectUserOrAdmin, async function (req, res, next) {
+router.post("/:username/coffees/:handle", ensureCorrectUserOrAdmin, async function (req, res, next) {
   try {
-    const coffeeId = +req.params.id;
-    await User.createReview(req.params.username, coffeeId, req.body.rating, req.body.message);
-    return res.json({ reviewed: coffeeId });
+    const coffeeHandle = req.params.handle;
+    await User.createReview(req.params.username, coffeeHandle, req.body.rating, req.body.message);
+    return res.json({ reviewed: coffeeHandle });
   } catch (err) {
     return next(err);
   }
