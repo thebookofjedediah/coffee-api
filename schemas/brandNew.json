@@ -15,7 +15,7 @@
         "type": "string",
         "minLength": 1
       },
-      "logo_url": {
+      "logoUrl": {
         "type": "string",
         "minLength": 1
       }

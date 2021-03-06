@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/thebookofjedediah/coffee-api#readme",
   "dependencies": {
+    "@sendgrid/mail": "^7.4.2",
     "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "cloudinary": "^1.25.0",

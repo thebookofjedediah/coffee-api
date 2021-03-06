@@ -10,8 +10,13 @@ const { ensureAdmin } = require("../middleware/auth");
 const Coffee = require("../models/coffee");
 const coffeeNewSchema = require("../schemas/coffeeNew.json");
 const coffeeUpdateSchema = require("../schemas/coffeeUpdate.json");
+const { checkPhoto, uploadPhoto} = require("../helpers/photos");
+let multer = require('multer');
 
 const router = express.Router({ mergeParams: true });
+
+// Set up multer to write incoming files to the tmp directory
+var upload = multer({ dest: 'tmp/' })
 
 
 /** POST / { coffee } => { coffee }
@@ -23,8 +28,14 @@ const router = express.Router({ mergeParams: true });
  * Authorization required: admin
  */
 
-router.post("/", ensureAdmin, async function (req, res, next) {
+router.post("/", upload.single('photoUrl'), async function (req, res, next) {
   try {
+    let content_check_passed = await checkPhoto(req.file.path);
+    console.log("content is clean")
+    if (content_check_passed){
+      let photoUrl = await uploadPhoto(req.file.path)
+      req.body['photoUrl'] = photoUrl;
+    }
     const validator = jsonschema.validate(req.body, coffeeNewSchema);
     if (!validator.valid) {
       const errs = validator.errors.map(e => e.stack);

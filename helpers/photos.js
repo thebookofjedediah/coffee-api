@@ -16,6 +16,7 @@ cloudinary.config({
   api_secret: CLOUDINARY_API_SECRET
 });
 
+
 // url to validate pic
 var picpurifyUrl = PICPURIFY_URL;
 

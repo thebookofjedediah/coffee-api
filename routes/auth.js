@@ -8,6 +8,8 @@ const { createToken } = require("../helpers/tokens");
 const userAuthSchema = require("../schemas/userAuth.json");
 const userRegisterSchema = require("../schemas/userRegister.json");
 const { BadRequestError } = require("../expressError");
+const sgMail = require('@sendgrid/mail')
+sgMail.setApiKey(process.env.SENDGRID_API)
 
 /** POST /auth/token:  { username, password } => { token }
  *
@@ -50,8 +52,26 @@ router.post("/register", async function (req, res, next) {
       const errs = validator.errors.map(e => e.stack);
       throw new BadRequestError(errs);
     }
+    // sendgrid email message
+    const msg = {
+      to: req.body.email, 
+      from: 'jarnold910@gmail.com', 
+      subject: 'User Registered',
+      text: 'Welcome to this coffee review app',
+      html: '<strong>Welcome to this coffee review app</strong>',
+    }
 
     const newUser = await User.register({ ...req.body, isAdmin: false });
+
+    sgMail.send(msg)
+    .then(() => {
+      console.log('Email sent')
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+
+
     const token = createToken(newUser);
     return res.status(201).json({ token });
   } catch (err) {
